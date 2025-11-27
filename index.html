@@ -20,7 +20,10 @@
       content="Räknar ner till din nästa lön. För dig som får utbetalningen senast den 25:e."
     />
     <meta property="og:locale" content="sv_SE" />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>"
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -69,9 +72,16 @@
         content: '';
         position: fixed;
         inset: 0;
-        background: 
-          radial-gradient(ellipse 80% 50% at 50% -20%, var(--color-accent-glow), transparent),
-          radial-gradient(ellipse 60% 40% at 80% 100%, rgba(212, 165, 116, 0.05), transparent);
+        background: radial-gradient(
+            ellipse 80% 50% at 50% -20%,
+            var(--color-accent-glow),
+            transparent
+          ),
+          radial-gradient(
+            ellipse 60% 40% at 80% 100%,
+            rgba(212, 165, 116, 0.05),
+            transparent
+          );
         pointer-events: none;
         z-index: 0;
       }
@@ -371,12 +381,28 @@
       ]);
 
       const WEEKDAYS = [
-        'söndag', 'måndag', 'tisdag', 'onsdag', 'torsdag', 'fredag', 'lördag'
+        'söndag',
+        'måndag',
+        'tisdag',
+        'onsdag',
+        'torsdag',
+        'fredag',
+        'lördag',
       ];
 
       const MONTHS = [
-        'januari', 'februari', 'mars', 'april', 'maj', 'juni',
-        'juli', 'augusti', 'september', 'oktober', 'november', 'december'
+        'januari',
+        'februari',
+        'mars',
+        'april',
+        'maj',
+        'juni',
+        'juli',
+        'augusti',
+        'september',
+        'oktober',
+        'november',
+        'december',
       ];
 
       function formatDateISO(date) {
@@ -437,12 +463,17 @@
         return `Utbetalning <span class="payday-weekday">${weekday}</span> den <span class="payday-date">${day} ${month}</span>`;
       }
 
-      let previousValues = { days: null, hours: null, minutes: null, seconds: null };
+      let previousValues = {
+        days: null,
+        hours: null,
+        minutes: null,
+        seconds: null,
+      };
 
       function updateValue(elementId, newValue) {
         const element = document.getElementById(elementId);
         const formattedValue = String(newValue).padStart(2, '0');
-        
+
         if (previousValues[elementId] !== formattedValue) {
           element.classList.add('changing');
           setTimeout(() => {
@@ -463,12 +494,15 @@
           document.getElementById('hours').textContent = '00';
           document.getElementById('minutes').textContent = '00';
           document.getElementById('seconds').textContent = '00';
-          document.getElementById('payday-info').innerHTML = 'Grattis! Det är <span class="payday-date">löning idag</span>!';
+          document.getElementById('payday-info').innerHTML =
+            'Grattis! Det är <span class="payday-date">löning idag</span>!';
           return;
         }
 
         const days = Math.floor(delta / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((delta % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const hours = Math.floor(
+          (delta % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+        );
         const minutes = Math.floor((delta % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((delta % (1000 * 60)) / 1000);
 
@@ -477,7 +511,8 @@
         updateValue('minutes', minutes);
         updateValue('seconds', seconds);
 
-        document.getElementById('payday-info').innerHTML = formatPaydayInfo(payDay);
+        document.getElementById('payday-info').innerHTML =
+          formatPaydayInfo(payDay);
       }
 
       document.addEventListener('DOMContentLoaded', () => {
