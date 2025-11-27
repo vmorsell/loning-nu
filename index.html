@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="sv">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>När kommer lönen? - Löning.nu</title>
     <meta
       name="description"
@@ -19,118 +20,469 @@
       content="Räknar ner till din nästa lön. För dig som får utbetalningen senast den 25:e."
     />
     <meta property="og:locale" content="sv_SE" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      :root {
+        --color-bg: #0a0a0a;
+        --color-surface: rgba(255, 255, 255, 0.03);
+        --color-surface-hover: rgba(255, 255, 255, 0.06);
+        --color-border: rgba(255, 255, 255, 0.08);
+        --color-text: #fafaf9;
+        --color-text-muted: rgba(250, 250, 249, 0.5);
+        --color-accent: #d4a574;
+        --color-accent-glow: rgba(212, 165, 116, 0.15);
+        --font-serif: 'Cormorant Garamond', Georgia, serif;
+        --font-mono: 'JetBrains Mono', monospace;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
       html {
-        font-size: 19px;
+        font-size: 16px;
       }
 
       body {
-        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        background: linear-gradient(transparent, rgba(0, 0, 0, 0.85)),
-          url('loning.jpg');
-        background-size: cover;
-        background-position: top center;
+        font-family: var(--font-serif);
+        background: var(--color-bg);
+        min-height: 100vh;
+        min-height: 100dvh;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        height: 100vh;
-        margin: 0;
-        color: rgba(255, 255, 255, 0.87);
+        padding: 2rem;
+        color: var(--color-text);
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: 
+          radial-gradient(ellipse 80% 50% at 50% -20%, var(--color-accent-glow), transparent),
+          radial-gradient(ellipse 60% 40% at 80% 100%, rgba(212, 165, 116, 0.05), transparent);
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .container {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 800px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3rem;
+      }
+
+      .header {
         text-align: center;
+        opacity: 0;
+        animation: fadeUp 0.8s ease-out 0.2s forwards;
+      }
+
+      .tagline {
+        font-size: 1rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--color-accent);
+        margin-bottom: 1.25rem;
+        font-family: var(--font-mono);
+        font-weight: 400;
       }
 
       h1 {
-        font-weight: normal;
-        letter-spacing: 0.05em;
-        font-size: 2em;
+        font-size: clamp(2.5rem, 10vw, 4.5rem);
+        font-weight: 400;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
       }
 
-      #timer {
+      h1 em {
+        font-style: italic;
+        color: var(--color-accent);
+      }
+
+      .countdown {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        width: 100%;
+        opacity: 0;
+        animation: fadeUp 0.8s ease-out 0.4s forwards;
+      }
+
+      .countdown-item {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        padding: 2rem 1.25rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .countdown-item::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(212, 165, 116, 0.08) 0%,
+          transparent 50%
+        );
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .countdown-item:hover::before {
+        opacity: 1;
+      }
+
+      .countdown-item:hover {
+        border-color: rgba(212, 165, 116, 0.3);
+        transform: translateY(-2px);
+      }
+
+      .countdown-value {
+        font-family: var(--font-mono);
+        font-size: clamp(3rem, 12vw, 5rem);
         font-weight: 500;
-        border-radius: 6px;
-        font-size: 2.5em;
+        line-height: 1;
+        color: var(--color-text);
+        display: block;
+        min-height: 1.2em;
+        position: relative;
+      }
+
+      .countdown-value .digit {
+        display: inline-block;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+      }
+
+      .countdown-value .digit.changing {
+        animation: digitChange 0.3s ease;
+      }
+
+      .countdown-label {
+        font-size: 0.875rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--color-text-muted);
+        margin-top: 1rem;
+        font-family: var(--font-mono);
+      }
+
+      .footer {
+        text-align: center;
+        opacity: 0;
+        animation: fadeUp 0.8s ease-out 0.6s forwards;
+      }
+
+      .payday-info {
+        font-size: 1.375rem;
+        color: var(--color-text-muted);
+        line-height: 1.6;
+      }
+
+      .payday-date {
+        color: var(--color-text);
+        font-weight: 600;
+      }
+
+      .payday-weekday {
+        color: var(--color-accent);
+        font-style: italic;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes digitChange {
+        0% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+        50% {
+          transform: translateY(-10px);
+          opacity: 0;
+        }
+        51% {
+          transform: translateY(10px);
+        }
+        100% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @media (max-width: 600px) {
+        body {
+          padding: 1.5rem;
+        }
+
+        .container {
+          gap: 2.5rem;
+        }
+
+        .countdown {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 0.75rem;
+        }
+
+        .countdown-item {
+          padding: 1.5rem 1rem;
+        }
+
+        .tagline {
+          font-size: 0.875rem;
+        }
+
+        .payday-info {
+          font-size: 1.125rem;
+        }
+      }
+
+      /* Subtle grain texture overlay */
+      body::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        opacity: 0.03;
+        pointer-events: none;
+        z-index: 100;
       }
     </style>
   </head>
   <body>
-    <h1>Nästa lön kommer om</h1>
-    <div id="timer"></div>
+    <div class="container">
+      <header class="header">
+        <p class="tagline">Löning.nu</p>
+        <h1>Nästa lön kommer om</h1>
+      </header>
+
+      <div class="countdown" id="countdown">
+        <div class="countdown-item">
+          <span class="countdown-value" id="days">--</span>
+          <span class="countdown-label">Dagar</span>
+        </div>
+        <div class="countdown-item">
+          <span class="countdown-value" id="hours">--</span>
+          <span class="countdown-label">Timmar</span>
+        </div>
+        <div class="countdown-item">
+          <span class="countdown-value" id="minutes">--</span>
+          <span class="countdown-label">Minuter</span>
+        </div>
+        <div class="countdown-item">
+          <span class="countdown-value" id="seconds">--</span>
+          <span class="countdown-label">Sekunder</span>
+        </div>
+      </div>
+
+      <footer class="footer">
+        <p class="payday-info" id="payday-info"></p>
+      </footer>
+    </div>
 
     <script>
-      // Public holidays in Sweden 2023.
-      const publicHolidays = [
-        '2023-01-01',
-        '2023-01-06',
-        '2023-04-07',
-        '2023-04-09',
-        '2023-04-10',
-        '2023-05-01',
-        '2023-05-18',
-        '2023-05-27',
-        '2023-06-06',
-        '2023-06-23',
-        '2023-12-24',
-        '2023-12-25',
-        '2023-12-26',
-        '2023-12-31',
+      // Swedish bank holidays (bankfria dagar) - days when salaries cannot be paid
+      // Format: YYYY-MM-DD
+      const bankHolidays = new Set([
+        // 2025
+        '2025-01-01', // Nyårsdagen
+        '2025-01-06', // Trettondedag jul
+        '2025-04-18', // Långfredagen
+        '2025-04-19', // Påskafton
+        '2025-04-20', // Påskdagen
+        '2025-04-21', // Annandag påsk
+        '2025-05-01', // Första maj
+        '2025-05-29', // Kristi himmelsfärdsdag
+        '2025-06-06', // Nationaldagen
+        '2025-06-07', // Pingstafton
+        '2025-06-08', // Pingstdagen
+        '2025-06-20', // Midsommarafton
+        '2025-06-21', // Midsommardagen
+        '2025-11-01', // Alla helgons dag
+        '2025-12-24', // Julafton
+        '2025-12-25', // Juldagen
+        '2025-12-26', // Annandag jul
+        '2025-12-31', // Nyårsafton
+        // 2026
+        '2026-01-01', // Nyårsdagen
+        '2026-01-06', // Trettondedag jul
+        '2026-04-03', // Långfredagen
+        '2026-04-04', // Påskafton
+        '2026-04-05', // Påskdagen
+        '2026-04-06', // Annandag påsk
+        '2026-05-01', // Första maj
+        '2026-05-14', // Kristi himmelsfärdsdag
+        '2026-05-23', // Pingstafton
+        '2026-05-24', // Pingstdagen
+        '2026-06-06', // Nationaldagen
+        '2026-06-19', // Midsommarafton
+        '2026-06-20', // Midsommardagen
+        '2026-10-31', // Alla helgons dag
+        '2026-12-24', // Julafton
+        '2026-12-25', // Juldagen
+        '2026-12-26', // Annandag jul
+        '2026-12-31', // Nyårsafton
+        // 2027
+        '2027-01-01', // Nyårsdagen
+        '2027-01-06', // Trettondedag jul
+        '2027-03-26', // Långfredagen
+        '2027-03-27', // Påskafton
+        '2027-03-28', // Påskdagen
+        '2027-03-29', // Annandag påsk
+        '2027-05-01', // Första maj
+        '2027-05-06', // Kristi himmelsfärdsdag
+        '2027-05-15', // Pingstafton
+        '2027-05-16', // Pingstdagen
+        '2027-06-06', // Nationaldagen
+        '2027-06-25', // Midsommarafton
+        '2027-06-26', // Midsommardagen
+        '2027-11-06', // Alla helgons dag
+        '2027-12-24', // Julafton
+        '2027-12-25', // Juldagen
+        '2027-12-26', // Annandag jul
+        '2027-12-31', // Nyårsafton
+      ]);
+
+      const WEEKDAYS = [
+        'söndag', 'måndag', 'tisdag', 'onsdag', 'torsdag', 'fredag', 'lördag'
       ];
+
+      const MONTHS = [
+        'januari', 'februari', 'mars', 'april', 'maj', 'juni',
+        'juli', 'augusti', 'september', 'oktober', 'november', 'december'
+      ];
+
+      function formatDateISO(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+
+      function isWorkingDay(date) {
+        const dayOfWeek = date.getDay();
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+        const isBankHoliday = bankHolidays.has(formatDateISO(date));
+        return !isWeekend && !isBankHoliday;
+      }
 
       function calculateNextPayDay() {
         const now = new Date();
         let year = now.getFullYear();
         let month = now.getMonth();
 
+        // If we're past the 25th, look at next month
         if (now.getDate() > 25) {
           month++;
-          if (month === 12) {
+          if (month > 11) {
             month = 0;
             year++;
           }
         }
 
-        let nextPayDay = new Date(year, month, 25);
+        let payDay = new Date(year, month, 25);
 
-        // Check if 25th is a weekend or public holiday. If yes, return the closest previous working day.
-        while (
-          nextPayDay.getDay() === 0 ||
-          nextPayDay.getDay() === 6 ||
-          publicHolidays.includes(nextPayDay.toLocaleDateString())
-        ) {
-          nextPayDay.setDate(nextPayDay.getDate() - 1);
+        // If 25th is weekend or holiday, go backwards to find working day
+        while (!isWorkingDay(payDay)) {
+          payDay.setDate(payDay.getDate() - 1);
         }
 
-        return nextPayDay;
+        // If the adjusted payday has already passed this month, look at next month
+        if (payDay <= now) {
+          month++;
+          if (month > 11) {
+            month = 0;
+            year++;
+          }
+          payDay = new Date(year, month, 25);
+          while (!isWorkingDay(payDay)) {
+            payDay.setDate(payDay.getDate() - 1);
+          }
+        }
+
+        return payDay;
       }
 
-      function updateCountdown(el) {
-        const now = new Date().getTime();
-        const nextPayDay = calculateNextPayDay().getTime();
+      function formatPaydayInfo(payDay) {
+        const weekday = WEEKDAYS[payDay.getDay()];
+        const day = payDay.getDate();
+        const month = MONTHS[payDay.getMonth()];
+        return `Utbetalning <span class="payday-weekday">${weekday}</span> den <span class="payday-date">${day} ${month}</span>`;
+      }
 
-        const delta = nextPayDay - now;
+      let previousValues = { days: null, hours: null, minutes: null, seconds: null };
+
+      function updateValue(elementId, newValue) {
+        const element = document.getElementById(elementId);
+        const formattedValue = String(newValue).padStart(2, '0');
+        
+        if (previousValues[elementId] !== formattedValue) {
+          element.classList.add('changing');
+          setTimeout(() => {
+            element.textContent = formattedValue;
+            element.classList.remove('changing');
+          }, 150);
+          previousValues[elementId] = formattedValue;
+        }
+      }
+
+      function updateCountdown() {
+        const now = new Date();
+        const payDay = calculateNextPayDay();
+        const delta = payDay.getTime() - now.getTime();
+
+        if (delta <= 0) {
+          document.getElementById('days').textContent = '00';
+          document.getElementById('hours').textContent = '00';
+          document.getElementById('minutes').textContent = '00';
+          document.getElementById('seconds').textContent = '00';
+          document.getElementById('payday-info').innerHTML = 'Grattis! Det är <span class="payday-date">löning idag</span>!';
+          return;
+        }
 
         const days = Math.floor(delta / (1000 * 60 * 60 * 24));
-        const hours = Math.floor(
-          (delta % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-        );
+        const hours = Math.floor((delta % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((delta % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((delta % (1000 * 60)) / 1000);
 
-        el.innerHTML =
-          days +
-          '&nbsp;dagar ' +
-          hours +
-          '&nbsp;timmar ' +
-          minutes +
-          '&nbsp;minuter och ' +
-          seconds +
-          '&nbsp;sekunder';
+        updateValue('days', days);
+        updateValue('hours', hours);
+        updateValue('minutes', minutes);
+        updateValue('seconds', seconds);
+
+        document.getElementById('payday-info').innerHTML = formatPaydayInfo(payDay);
       }
 
       document.addEventListener('DOMContentLoaded', () => {
-        const el = document.getElementById('timer');
-        updateCountdown(el);
-        setInterval(() => updateCountdown(el), 1000);
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
       });
     </script>
   </body>
